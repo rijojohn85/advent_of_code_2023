@@ -1,132 +1,42 @@
-use ndarray::{Array2, Axis};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 fn main() {
-    let mut reader = BufReader::new(File::open("input_day_3").unwrap());
+    let mut reader = BufReader::new(File::open("input_day4_part1").unwrap());
     let mut line = String::new();
-    let mut line_len = 0;
-    let mut num_lines = 0;
+    let mut sum = 0;
 
-    let mut a1 = vec![];
     loop {
         let bytes = reader.read_line(&mut line).unwrap();
         if bytes == 0 {
             break;
         }
-        for char in line.trim().to_string().chars() {
-            a1.push(char);
+        let v: Vec<&str> = line.split(':').collect();
+        let v1: Vec<&str> = v[1].split('|').collect();
+        let results = str_to_vec(v1[0].trim());
+        let our_nums = str_to_vec(v1[1].trim());
+        let mut n = 0;
+        for each in our_nums {
+            if results.contains(&each) {
+                n += 1;
+            }
         }
-        line_len = line.trim().len();
+        if n != 0 {
+            let base: i32 = 2;
+            sum += base.pow(n - 1);
+        }
+
         line.clear();
-        num_lines += 1;
     }
-
-    let a = Array2::from_shape_vec((line_len, num_lines), a1).unwrap();
-    let mut sum = 0;
-    let mut index_insert: Vec<(usize, usize)> = Vec::new();
-    for (i, a1) in a.axis_iter(Axis(0)).enumerate() {
-        for (j, a2) in a1.iter().enumerate() {
-            let mut gears: Vec<usize> = vec![];
-            if a2 == &'*' {
-                let coord = get_coord(i, j);
-                for c in coord {
-                    if let Some(ch) = a.get(c) {
-                        if ch.is_numeric() {
-                            let mut st = String::new();
-                            let x = c.0;
-                            let mut y = c.1;
-
-                            while a.get((x, y)).unwrap().is_numeric() {
-                                if !index_insert.contains(&(x, y)) {
-                                    st.push(*a.get((x, y)).unwrap());
-                                    index_insert.push((x, y));
-                                }
-                                if y == 0 {
-                                    break;
-                                }
-                                y -= 1;
-                            }
-                            st = st.chars().rev().collect();
-                            y = c.1 + 1;
-                            if y < line_len {
-                                while a.get((x, y)).unwrap().is_numeric() {
-                                    if !index_insert.contains(&(x, y)) {
-                                        st.push(*a.get((x, y)).unwrap());
-                                        index_insert.push((x, y));
-                                    }
-                                    if y == line_len - 1 {
-                                        break;
-                                    }
-                                    y += 1;
-                                }
-                            }
-                            if !st.is_empty() {
-                                gears.push(st.parse().unwrap());
-                            }
-                        }
-                    }
-                }
-            }
-            if gears.len() == 2 {
-                sum += gears[0] * gears[1];
-            }
-        }
-    }
-    // let mut sum = 0;
-    // for each in correct_nums {
-    //     sum += each;
-    // }
     println!("{sum}");
 }
+fn str_to_vec(input: &str) -> Vec<usize> {
+    let mut result: Vec<usize> = Vec::new();
+    let v: Vec<&str> = input.split(' ').collect();
 
-fn get_coord(i: usize, j: usize) -> Vec<(usize, usize)> {
-    let mut result = vec![];
-
-    if i > 0 {
-        result.push((i - 1, j));
-        result.push((i - 1, j + 1));
-
-        if j > 0 {
-            result.push((i - 1, j - 1));
+    for each in v {
+        if let Ok(n) = each.parse::<usize>() {
+            result.push(n);
         }
     }
-    if j > 0 {
-        result.push((i, j - 1));
-        result.push((i + 1, j - 1));
-    }
-
-    result.push((i, j + 1));
-    result.push((i + 1, j));
-    result.push((i + 1, j + 1));
     result
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    #[test]
-    fn test_get_coord() {
-        assert_eq!(get_coord(0, 0), vec![(0, 1), (1, 0), (1, 1)]);
-        assert_eq!(
-            get_coord(1, 0),
-            vec![(0, 0), (0, 1), (1, 1), (2, 0), (2, 1)]
-        );
-        assert_eq!(
-            get_coord(0, 1),
-            vec![(0, 0), (1, 0), (0, 2), (1, 1), (1, 2)]
-        );
-        assert_eq!(
-            get_coord(1, 1),
-            vec![
-                (0, 1),
-                (0, 2),
-                (0, 0),
-                (1, 0),
-                (2, 0),
-                (1, 2),
-                (2, 1),
-                (2, 2)
-            ]
-        );
-    }
 }
