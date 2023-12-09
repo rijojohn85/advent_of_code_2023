@@ -22,12 +22,12 @@ fn main() {
     }
 
     let a = Array2::from_shape_vec((line_len, num_lines), a1).unwrap();
-    let mut sum = 0;
+
     let mut index_insert: Vec<(usize, usize)> = Vec::new();
+    let mut correct_nums: Vec<usize> = Vec::new();
     for (i, a1) in a.axis_iter(Axis(0)).enumerate() {
         for (j, a2) in a1.iter().enumerate() {
-            let mut gears: Vec<usize> = vec![];
-            if a2 == &'*' {
+            if !a2.is_numeric() && a2 != &'.' {
                 let coord = get_coord(i, j);
                 for c in coord {
                     if let Some(ch) = a.get(c) {
@@ -61,21 +61,18 @@ fn main() {
                                 }
                             }
                             if !st.is_empty() {
-                                gears.push(st.parse().unwrap());
+                                correct_nums.push(st.parse().unwrap());
                             }
                         }
                     }
                 }
             }
-            if gears.len() == 2 {
-                sum += gears[0] * gears[1];
-            }
         }
     }
-    // let mut sum = 0;
-    // for each in correct_nums {
-    //     sum += each;
-    // }
+    let mut sum = 0;
+    for each in correct_nums {
+        sum += each;
+    }
     println!("{sum}");
 }
 
