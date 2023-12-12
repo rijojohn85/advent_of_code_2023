@@ -1,18 +1,17 @@
-use rayon::prelude::*;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::usize;
-// #[derive(Debug)]
-// struct Solution {
-//     seed: usize,
-//     soil: usize,
-//     fertilizer: usize,
-//     water: usize,
-//     light: usize,
-//     temperature: usize,
-//     humidity: usize,
-//     location: usize,
-// }
+#[derive(Debug)]
+struct Solution {
+    seed: usize,
+    soil: usize,
+    fertilizer: usize,
+    water: usize,
+    light: usize,
+    temperature: usize,
+    humidity: usize,
+    location: usize,
+}
 fn main() {
     let reader = BufReader::new(File::open("input_day5").unwrap());
     let mut lines = reader.lines().map(|l| l.unwrap());
@@ -112,66 +111,35 @@ fn main() {
     // println!("{:?}", light_to_temperature_map);
     // println!("{:?}", temperature_to_humidity_map);
     // println!("{:?}", humidity_to_location_map);
-    // let mut solutions = vec![];
-    // let mut lowest = usize::MAX;
-    // for i in (0..seeds.len()).step_by(2) {
-    //     println!("i:{i}");
-    //     for seed in seeds[i]..(seeds[i] + seeds[i + 1]) {
-    //         let soil = get_value(seed.clone(), &seed_to_soil_map);
-    //         let fertilizer = get_value(soil.clone(), &soil_to_fertility_map);
-    //         let water = get_value(fertilizer.clone(), &fertility_to_water_map);
-    //         let light = get_value(water.clone(), &water_to_light_map);
-    //         let temperature = get_value(light.clone(), &light_to_temperature_map);
-    //         let humidity = get_value(temperature.clone(), &temperature_to_humidity_map);
-    //         let location = get_value(humidity.clone(), &humidity_to_location_map);
-    //
-    //         if location < lowest {
-    //             lowest = location;
-    //         }
-    //
-    //         // let sol = Solution {
-    //         //     seed,
-    //         //     soil,
-    //         //     fertilizer,
-    //         //     water,
-    //         //     light,
-    //         //     temperature,
-    //         //     humidity,
-    //         //     location,
-    //         // };
-    //         // solutions.push(sol);
-    //     }
-    //     println!("done with {i}");
-    // }
-    // // for sol in solutions {
-    // //     if sol.location < lowest {
-    // //         lowest = sol.location;
-    // //     }
-    // // }
-    // println!("{lowest}");
+    let mut solutions = vec![];
+    for seed in seeds {
+        let soil = get_value(seed.clone(), &seed_to_soil_map);
+        let fertilizer = get_value(soil.clone(), &soil_to_fertility_map);
+        let water = get_value(fertilizer.clone(), &fertility_to_water_map);
+        let light = get_value(water.clone(), &water_to_light_map);
+        let temperature = get_value(light.clone(), &light_to_temperature_map);
+        let humidity = get_value(temperature.clone(), &temperature_to_humidity_map);
+        let location = get_value(humidity.clone(), &humidity_to_location_map);
+
+        let sol = Solution {
+            seed,
+            soil,
+            fertilizer,
+            water,
+            light,
+            temperature,
+            humidity,
+            location,
+        };
+        solutions.push(sol);
+    }
     let mut lowest = usize::MAX;
-    for i in (0..seeds.len()).step_by(2) {
-        println!("i:{i}");
-        let loc = (seeds[i]..(seeds[i] + seeds[i + 1]))
-            .into_par_iter()
-            .map(|seed| {
-                let soil = get_value(seed, &seed_to_soil_map);
-                let fertilizer = get_value(soil, &soil_to_fertility_map);
-                let water = get_value(fertilizer, &fertility_to_water_map);
-                let light = get_value(water, &water_to_light_map);
-                let temperature = get_value(light, &light_to_temperature_map);
-                let humidity = get_value(temperature, &temperature_to_humidity_map);
-                let location = get_value(humidity, &humidity_to_location_map);
-                location
-            })
-            .min()
-            .unwrap();
-        println!("done with {i}");
-        if loc < lowest {
-            lowest = loc;
+    for sol in solutions {
+        if sol.location < lowest {
+            lowest = sol.location;
         }
     }
-    println!("{:?}", lowest);
+    println!("{lowest}");
 }
 
 fn get_value(value: usize, map: &Vec<(usize, usize, usize)>) -> usize {
