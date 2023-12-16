@@ -16,16 +16,11 @@ fn main() {
         }
         input.push(l);
     }
-    let sum: isize = input.iter().map(find_prev).sum();
-    // for each in input {
-    //     let s = find_prev(&each);
-    //     println!("{s}");
-    // }
+    let sum: isize = input.iter().map(find_next).sum();
     println!("{sum}");
-    // println!("{:?}", find_prev(&input[2]));
 }
 
-fn find_prev(input: &Vec<isize>) -> isize {
+fn find_next(input: &Vec<isize>) -> isize {
     let mut output: Vec<Vec<isize>> = vec![input.clone()];
     let mut i = 0;
     let mut j = i + 1;
@@ -41,10 +36,9 @@ fn find_prev(input: &Vec<isize>) -> isize {
         if j == output[l].len() {
             output.push(temp.clone());
             if check_equal_vec(&temp) {
-                output.reverse();
                 for each in &output {
-                    let e = each.first().unwrap();
-                    sum = e - sum;
+                    let e = each.last().unwrap();
+                    sum += e;
                 }
 
                 break;
